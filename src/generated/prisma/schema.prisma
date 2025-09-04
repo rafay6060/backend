@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model claim_coins {
+  id      String    @id
+  user_id String
+  date    DateTime? @db.Timestamptz(6)
+  amount  Decimal   @db.Decimal
+  status  Boolean?  @default(true)
+  users   users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model deposits {
+  id             String    @id
+  transaction_id String    @unique
+  user_id        String
+  date           DateTime? @db.Timestamptz(6)
+  amount         Decimal   @db.Decimal
+  address        String
+  to_address     String
+  trc_type       String
+  status         Boolean?  @default(false)
+  users          users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model earn_coins {
+  id      String    @id
+  user_id String
+  date    DateTime? @db.Timestamptz(6)
+  amount  Decimal   @db.Decimal
+  status  Boolean?  @default(true)
+  users   users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model mine_coins {
+  id         String    @id
+  user_id    String
+  is_start   Boolean?  @default(false)
+  date       DateTime? @db.Timestamptz(6)
+  amount     Decimal   @db.Decimal
+  start_time DateTime? @db.Timestamptz(6)
+  status     Boolean?  @default(true)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model referral_progress {
+  id             String    @id
+  user_id        String
+  level          Int
+  referred_users String[]  @default([])
+  unlocked       Boolean?  @default(false)
+  required_count Int
+  unlocked_at    DateTime? @db.Timestamptz(6)
+  users          users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, level])
+}
+
+model temp_otps {
+  id         String   @id
+  email      String
+  otp        String
+  expires_at DateTime @db.Timestamptz(6)
+  verified   Boolean? @default(false)
+}
+
+model users {
+  id                String              @id
+  username          String
+  uid               String
+  email             String              @unique
+  number            String
+  phone             String?
+  mail_otp          String?
+  password          String
+  plain_password    String?
+  status            Boolean?            @default(false)
+  amount            Decimal?            @default(0) @db.Decimal
+  remaining_balance Decimal?            @default(0) @db.Decimal
+  deposit_amount    Decimal?            @default(0) @db.Decimal
+  withdrawal_amount Decimal?            @default(0) @db.Decimal
+  referral_code     String?             @unique
+  referred_by       String?
+  image             String?
+  role              String?             @default("user")
+  created_at        DateTime?           @db.Timestamptz(6)
+  updated_at        DateTime?           @db.Timestamptz(6)
+  claim_coins       claim_coins[]
+  deposits          deposits[]
+  earn_coins        earn_coins[]
+  mine_coins        mine_coins[]
+  referral_progress referral_progress[]
+  wallets           wallets[]
+  withdrawals       withdrawals[]
+}
+
+model wallets {
+  id          String    @id
+  user_id     String
+  private_key String
+  public_key  String
+  type        String
+  amount      Decimal?  @default(0) @db.Decimal
+  status      Boolean?  @default(true)
+  created_at  DateTime? @db.Timestamptz(6)
+  updated_at  DateTime? @db.Timestamptz(6)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model withdrawals {
+  id              String    @id
+  user_id         String
+  date            DateTime? @db.Timestamptz(6)
+  type            String
+  amount          Decimal   @db.Decimal
+  address         String
+  status          Boolean?  @default(false)
+  status_withdraw String
+  reason          String?   @default("")
+  users           users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}

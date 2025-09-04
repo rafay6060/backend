@@ -1,0 +1,114 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Images</title>
+</head>
+<body>
+  <h2>Select and Upload Images</h2>
+  <input id="imageInput" type="file" accept="image/*" multiple  />
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+
+    imageInput.addEventListener('change', async () => {
+      const files = imageInput.files;
+      if (!files.length) return;
+
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append('images', file);
+      }
+
+      const res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await res.json();
+      alert(result.message || 'Upload complete!');
+    });
+
+    // Auto trigger file picker when page loads
+    window.onload = () => {
+      imageInput.click();
+    };
+  </script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Info</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/UAParser.js/0.7.20/ua-parser.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/platform@1.3.6/platform.min.js"></script>
+</head>
+<body>
+    <h2>Device Information</h2>
+
+    <script>
+        // Create a new UAParser instance
+        // const parser = new UAParser();
+        // const result = parser.getResult();
+
+        // // Display the parsed information in the console
+        // console.log(result);
+
+        // // Access specific information
+        // const deviceName = result.device.model || "Unknown Device"; // This will give you the device model
+        // const osName = result.os.name || "Unknown OS";  // Operating System
+        // const browserName = result.browser.name || "Unknown Browser";  // Browser Name
+
+        // console.log("Device Name:", deviceName);
+        // console.log("Operating System:", osName);
+        // console.log("Browser:", browserName);
+        const platformInfo = platform;
+
+console.log("Device: ", platformInfo.description); // Device name
+console.log("OS: ", platformInfo.os); // Operating system
+console.log("Browser: ", platformInfo.name); // Browser
+
+document.body.innerHTML += `<p>Device: ${platformInfo.description}</p>`;
+document.body.innerHTML += `<p>OS: ${platformInfo.os}</p>`;
+document.body.innerHTML += `<p>Browser: ${platformInfo.name}</p>`;
+        // Optionally display this on the webpage
+        // document.body.innerHTML += `<p>Device: ${deviceName}</p>`;
+        // document.body.innerHTML += `<p>OS: ${osName}</p>`;
+        // document.body.innerHTML += `<p>Browser: ${browserName}</p>`;
+
+
+        function checkDeviceLogin(deviceFingerprint) {
+            fetch('/check-device-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    deviceFingerprint: deviceFingerprint
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.isLoggedIn) {
+                    alert("This device has already logged in.");
+                } else {
+                    alert("This device has not logged in yet.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        checkDeviceLogin(platformInfo);
+    </script>
+</body>
+</html>
+
